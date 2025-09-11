@@ -1,0 +1,7 @@
+CREATE FUNCTION my_add(a INT, b INT)
+RETURNS INT 
+AS $$
+BEGIN 
+    RETURN a+b;
+END;
+$$ LANGUAGE plpgsql;
