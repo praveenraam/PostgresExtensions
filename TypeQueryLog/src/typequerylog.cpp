@@ -23,12 +23,18 @@ static ProcessUtility_hook_type hook_holder_process_utility = NULL;
 
 // Function Declaration
 static void queryFetcherForDML(QueryDesc * queryDesc);
-// static void queryFetcherForDDL();
+static void queryFetcherForDDL(
+    PlannedStmt *pstmt, const char *queryString,
+    bool readOnlyTree,
+    ProcessUtilityContext context, ParamListInfo params,
+    QueryEnvironment *queryEnv,
+    DestReceiver *dest, QueryCompletion *qc
+);
 static std::string queryTypeFinder(std::string query);
 static std::string get_first_word(std::string query);
 
 // Const value declaration
-const std::string PATH = "/home/praveen-pt7975/Documents/Extension/TypeQueryLog/Log.txt";
+const std::string PATH = "/home/praveen-pt7975/Documents/Extension/TypeQueryLog/Log.log";
 
 
 // Init
@@ -39,12 +45,12 @@ extern "C" void _PG_init(void){
     ExecutorEnd_hook = queryFetcherForDML;
 
     hook_holder_process_utility = ProcessUtility_hook;
-    // ProcessUtility_hook = queryFetcherForDDL;
+    ProcessUtility_hook = queryFetcherForDDL;
 }
 // close
 extern "C" void _PG_fini(void){
     ExecutorEnd_hook = hook_holder_ExecutorEnd;
-    // ProcessUtility_hook = hook_holder_process_utility;
+    ProcessUtility_hook = hook_holder_process_utility;
 }
 
 
@@ -66,6 +72,32 @@ static void queryFetcherForDML(QueryDesc* queryDesc){
 
     log_file.close();
 }
+
+static void queryFetcherForDDL(
+    PlannedStmt *pstmt, const char *queryString,
+    bool readOnlyTree,
+    ProcessUtilityContext context, ParamListInfo params,
+    QueryEnvironment *queryEnv,
+    DestReceiver *dest, QueryCompletion *qc) {
+    
+        std::ofstream log_file(PATH, std::ios::app);
+        elog(LOG,"Function executing DDL");
+
+        if(!log_file.is_open()){
+            elog(LOG, "Not able to log the Statements");
+            return;
+        }
+
+        std::string typeFound = queryTypeFinder(queryString);
+        log_file << "[" << 
+            // currentTimestamp() << 
+                "] " << queryString << " Type : DDL" << "\n";
+
+        elog(LOG,"Query to execute : %s",queryString);
+
+        log_file.close();
+    }
+
 
 static std::string queryTypeFinder(std::string query){
     
