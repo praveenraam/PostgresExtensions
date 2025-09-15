@@ -1,5 +1,4 @@
-### Create an postgres extension that read the queries ran on the DB and differentitate the queries as DDL, DML, DQL, DCL, TCL
-
+### Create an postgres extension that read the queries ran on the DB and differentitate the queries as DDL, DML, DQL
 #### My approach :
 - Set a project extension
 - Know how to read the query ran on db
