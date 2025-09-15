@@ -17,6 +17,7 @@ extern "C"{
 #include <iostream>
 #include <algorithm>
 #include <cctype> 
+#include <stdlib.h>
 
 static ExecutorEnd_hook_type hook_holder_ExecutorEnd = NULL;
 static ProcessUtility_hook_type hook_holder_process_utility = NULL;
@@ -63,10 +64,13 @@ static void queryFetcherForDML(QueryDesc* queryDesc){
         return;
     }
 
+    time_t my_time = time(NULL);
+    std::string current_time = ctime(&my_time);
+    current_time.erase(std::remove(current_time.begin(), current_time.end(), '\n'), current_time.end());
+    
+
     std::string typeFound = queryTypeFinder(queryDesc->sourceText);
-    log_file << "[" << 
-        // currentTimestamp() << 
-            "] " << queryDesc->sourceText << " Type : " <<  typeFound << "\n";
+    log_file << "[" << current_time << "] " << queryDesc->sourceText << " Type : " <<  typeFound << "\n";
 
     elog(LOG,"Query to execute : %s",queryDesc->sourceText);
 
@@ -88,11 +92,11 @@ static void queryFetcherForDDL(
             return;
         }
 
-        std::string typeFound = queryTypeFinder(queryString);
-        log_file << "[" << 
-            // currentTimestamp() << 
-                "] " << queryString << " Type : DDL" << "\n";
+        time_t my_time = time(NULL);
+        std::string current_time = ctime(&my_time);
+        current_time.erase(std::remove(current_time.begin(), current_time.end(), '\n'), current_time.end());
 
+        log_file << "[" << current_time << "] " << queryString << " Type : DDL" << "\n";
         elog(LOG,"Query to execute : %s",queryString);
 
         log_file.close();
